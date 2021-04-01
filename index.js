@@ -71,3 +71,14 @@ app.get("/metro/linea/:nombreParada", async (req, res, next) => {
     res.json({ paradas: paradaLineas });
   }
 });
+app.use((req, res, next) => {
+  const peticionesNoRecogidas = ["POST", "PUT", "DELETE"];
+  if (peticionesNoRecogidas.find(peticion => peticion === req.method)) {
+    res.status(403).json({ error: true, mensaje: "Te pensabas que podias hackearme" });
+  } else {
+    res.status(404).json({ error: true, mensaje: "Recurso no encontrado" });
+  }
+});
+app.use((err, req, res, next) => {
+  res.status(500).json({ error: true, mensaje: "Error general" });
+});
