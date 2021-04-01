@@ -54,7 +54,7 @@ const paradasLinea = async (codiLinea, nomLinea, descripcioLinea) => {
 const consultarParadasLinea = async (nombreParada, res) => {
   const resp = await fetch(`${urlLineas}?app_id=${appID}&app_key=${appKey}`);
   const datos = await resp.json();
-  const lineaBuscada = datos.features.find(linea => linea.properties.NOM_LINIA === nombreParada);
+  const lineaBuscada = datos.features.find(linea => linea.properties.NOM_LINIA.toLowerCase() === nombreParada.toLowerCase());
   if (lineaBuscada) {
     const { CODI_LINIA, NOM_LINIA, DESC_LINIA } = lineaBuscada.properties;
     const paradaLinea = await paradasLinea(CODI_LINIA, NOM_LINIA, DESC_LINIA);
