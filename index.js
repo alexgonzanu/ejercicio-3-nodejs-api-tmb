@@ -33,9 +33,41 @@ const consultarLineas = async () => {
   }));
   return lineas;
 };
+const paradasLinea = async (codiLinea, nomLinea, descripcioLinea) => {
+  const resp = await fetch(`${urlLineas}/${codiLinea}/estacions?app_id=${appID}&app_key=${appKey}`);
+  const datos = await resp.json();
+  return {
+    linea: nomLinea,
+    descripcion: descripcioLinea,
+    paradas: datos.features.map(parada => ({
+      id: parada.properties.ID_ESTACIO,
+      nombre: parada.properties.NOM_ESTACIO
+    }))
+  };
+};
+const consultarParadasLinea = async (nombreParada, res) => {
+  const resp = await fetch(`${urlLineas}?app_id=${appID}&app_key=${appKey}`);
+  const datos = await resp.json();
+  const lineaBuscada = datos.features.find(linea => linea.properties.NOM_LINIA === nombreParada);
+  if (lineaBuscada) {
+    const { CODI_LINIA, NOM_LINIA, DESC_LINIA } = lineaBuscada.properties;
+    const paradaLinea = await paradasLinea(CODI_LINIA, NOM_LINIA, DESC_LINIA);
+    return paradaLinea;
+  }
+};
 
 app.use(morgan("dev"));
 app.use(express.static("public"));
-app.get("/metro/lineas", (req, res, next) => {
-  consultarLineas().then(val => res.json({ lineas: val }));
+app.get("/metro/lineas", async (req, res, next) => {
+  const lineas = await consultarLineas();
+  res.json({ lineas });
+});
+app.get("/metro/linea/:nombreParada", async (req, res, next) => {
+  const { nombreParada } = req.params;
+  const paradaLineas = await consultarParadasLinea(nombreParada);
+  if (!paradaLineas) {
+    res.status(404).json({ error: "No se ha encontrado las paradas de la linea" });
+  } else {
+    res.json({ paradas: paradaLineas });
+  }
 });
