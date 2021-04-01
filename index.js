@@ -2,11 +2,17 @@ require("dotenv").config();
 const debug = require("debug")("mi-app:principal");
 const express = require("express");
 const chalk = require("chalk");
+const { program } = require("commander");
 const morgan = require("morgan");
 const fetch = require("node-fetch");
 
+program.option("-p, --puerto <puerto>", "Puerto para el servidor");
+program.parse(process.argv);
+const options = program.opts();
+
 const app = express();
-const puerto = process.env.PUERTO || 5000;
+
+const puerto = options.puerto || process.env.PUERTO || 5000;
 const urlLineas = process.env.URL_TMB_LINIAS_METRO;
 const appID = process.env.APP_ID_TMB;
 const appKey = process.env.APP_KEY_TMB;
